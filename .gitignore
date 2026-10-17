@@ -1,0 +1,12 @@
+build/
+.chrome-profile*/
+.chrome-cdp*/
+node_modules/
+.zip-stage/
+*.zip
+
+previews/qa-*
+previews/dbg-*
+previews/test-*
+previews/cdp-*
+previews/qa*.png

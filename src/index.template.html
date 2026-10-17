@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#070a08" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <title>虎王 Tiger II · 三维装甲档案</title>
+  <meta name="description" content="二战德国虎王坦克（Tiger II / Pz.Kpfw. VI Ausf. B）程序化 3D 交互模型：亨舍尔炮塔、8.8 cm KwK 43 L/71 长身管炮与交错负重轮。可自由旋转、缩放查看。" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%23090c09'/%3E%3Cpath d='M10 24h10V14h8v10h8V14h8v10h10v8H44v8h10v8H10v-8h10v-8H10z' fill='%23c6ab79'/%3E%3C/svg%3E" />
+  <style>/*__CSS__*/</style>
+</head>
+<body class="is-loading">
+  <main id="app" class="app">
+    <canvas id="scene" aria-label="虎王坦克三维模型，可拖拽旋转与滚轮缩放"></canvas>
+
+    <div class="ui-layer">
+      <div class="atmosphere" aria-hidden="true">
+        <div class="vignette"></div>
+        <div class="grain"></div>
+        <div class="top-fade"></div>
+        <div class="bottom-fade"></div>
+        <div class="frame frame--tl"></div>
+        <div class="frame frame--tr"></div>
+        <div class="frame frame--bl"></div>
+        <div class="frame frame--br"></div>
+      </div>
+
+      <header class="topbar">
+        <a class="brand" id="brand" href="#" aria-label="虎王坦克 · 返回全景视角">
+          <span class="brand-mark" aria-hidden="true">
+            <span>VI</span>
+            <i>B</i>
+          </span>
+          <span class="brand-copy">
+            <span class="brand-kicker">PANZERKAMPFWAGEN · SD.KFZ. 182</span>
+            <span class="brand-title">虎王 <em>TIGER II</em></span>
+          </span>
+        </a>
+
+        <div class="top-actions">
+          <div class="live-status" aria-label="实时三维渲染">
+            <span class="live-dot" aria-hidden="true"></span>
+            <span>WEBGL</span>
+            <i aria-hidden="true"></i>
+            <span>实时渲染</span>
+          </div>
+          <button class="icon-btn" id="infoBtn" type="button" aria-label="查阅技术档案" title="技术档案 (I)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.8h9.2L19 8.6v11.6H5z"></path><path d="M14 3.8v5h5M8.2 12.5h7.6M8.2 16h5.4"></path></svg>
+          </button>
+          <button class="icon-btn" id="shotBtn" type="button" aria-label="保存当前画面" title="保存画面">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.8 7.5h3.1l1.4-2h7.4l1.4 2h3.1v11H3.8z"></path><circle cx="12" cy="13" r="3.4"></circle></svg>
+          </button>
+          <button class="icon-btn" id="fullscreenBtn" type="button" aria-label="进入全屏" title="全屏 (F)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"></path></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="axis-label axis-label--left" aria-hidden="true">
+        <span>KÖNIGSTIGER</span>
+        <i></i>
+        <span>HENSCHEL · 1944</span>
+      </div>
+
+      <section class="dossier" aria-label="虎王坦克简介">
+        <div class="dossier-rule"><span></span><i>ARCHIVE 001</i></div>
+        <h1 class="dossier-title">虎王</h1>
+        <p class="dossier-sub">TIGER II <span>·</span> Pz.Kpfw. VI Ausf. B</p>
+        <p class="dossier-copy">亨舍尔炮塔量产型。倾斜装甲、71 倍径 88 毫米炮与交错负重轮，构成这台七十吨级重型坦克的辨识轮廓。</p>
+        <dl class="spec-grid">
+          <div><dt>战斗全重</dt><dd>69.8<small>t</small></dd></div>
+          <div><dt>主炮口径</dt><dd>88<small>mm</small></dd></div>
+          <div><dt>首上装甲</dt><dd>150<small>mm</small></dd></div>
+          <div><dt>发动机</dt><dd>700<small>PS</small></dd></div>
+        </dl>
+        <button class="archive-link" id="archiveBtn" type="button">
+          <span>查阅技术档案</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 7l5 5-5 5"></path></svg>
+        </button>
+      </section>
+
+      <aside class="view-rail" aria-label="预设观察角度">
+        <div class="rail-head"><span>观察角度</span><span>VIEWPOINTS</span></div>
+        <div class="view-list" id="viewList" role="group" aria-label="选择预设机位">
+          <button class="view-btn is-active" data-view="hero" type="button" aria-pressed="true">
+            <span class="view-index">01</span>
+            <span class="view-copy"><b>全景</b><small>THREE-QUARTER</small></span>
+            <i class="view-line" aria-hidden="true"></i>
+          </button>
+          <button class="view-btn" data-view="front" type="button" aria-pressed="false">
+            <span class="view-index">02</span>
+            <span class="view-copy"><b>正前</b><small>FRONTAL</small></span>
+            <i class="view-line" aria-hidden="true"></i>
+          </button>
+          <button class="view-btn" data-view="profile" type="button" aria-pressed="false">
+            <span class="view-index">03</span>
+            <span class="view-copy"><b>侧翼</b><small>PROFILE</small></span>
+            <i class="view-line" aria-hidden="true"></i>
+          </button>
+          <button class="view-btn" data-view="rear" type="button" aria-pressed="false">
+            <span class="view-index">04</span>
+            <span class="view-copy"><b>尾后</b><small>REAR</small></span>
+            <i class="view-line" aria-hidden="true"></i>
+          </button>
+          <button class="view-btn" data-view="turret" type="button" aria-pressed="false">
+            <span class="view-index">05</span>
+            <span class="view-copy"><b>炮塔</b><small>TURRET</small></span>
+            <i class="view-line" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="rail-foot">
+          <span id="railMode">自由观察</span>
+          <i aria-hidden="true"></i>
+          <span>01—05</span>
+        </div>
+      </aside>
+
+      <div class="hotspots" id="hotspots" aria-label="结构标注"></div>
+
+      <div class="gesture-hint" id="gestureHint">
+        <span class="mouse-glyph" aria-hidden="true"><i></i></span>
+        <span><b>拖拽</b>环视</span>
+        <span class="hint-sep" aria-hidden="true"></span>
+        <span><b>滚轮</b>缩放</span>
+      </div>
+
+      <footer class="bottom-ui">
+        <div class="dock" role="toolbar" aria-label="场景控制">
+          <button class="dock-btn" id="autoBtn" type="button" aria-pressed="false" title="自动环绕 (A)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.8-4M4 5v5h5M4 13a8 8 0 0 0 14.8 4M20 19v-5h-5"></path></svg>
+            <span>自动环绕</span>
+          </button>
+          <span class="dock-sep" aria-hidden="true"></span>
+          <button class="dock-btn" id="annotBtn" type="button" aria-pressed="false" title="结构标注 (N)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.4"></circle><circle cx="12" cy="12" r="2.1"></circle><path d="M12 1.8v3.4M12 18.8v3.4M1.8 12h3.4M18.8 12h3.4"></path></svg>
+            <span>结构标注</span>
+          </button>
+          <span class="dock-sep" aria-hidden="true"></span>
+          <button class="dock-btn" id="resetBtn" type="button" title="重置视角 (R)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.4 9.1A7.4 7.4 0 1 1 4.8 14"></path><path d="M4.4 4.6v4.8h4.8"></path></svg>
+            <span>重置视角</span>
+          </button>
+        </div>
+
+        <div class="readout" aria-hidden="true">
+          <span><em>AZ</em><b id="readAz">032°</b></span>
+          <span><em>EL</em><b id="readEl">+12°</b></span>
+          <span><em>R</em><b id="readDist">16.8 m</b></span>
+        </div>
+      </footer>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+      <div class="loader" id="loader" role="status" aria-live="polite">
+        <div class="loader-grid" aria-hidden="true"></div>
+        <div class="loader-content">
+          <div class="loader-emblem" aria-hidden="true">
+            <span class="reticle-ring"></span>
+            <span class="reticle-ring reticle-ring--inner"></span>
+            <span class="reticle-tick reticle-tick--a"></span>
+            <span class="reticle-tick reticle-tick--b"></span>
+            <span class="reticle-tick reticle-tick--c"></span>
+            <span class="reticle-tick reticle-tick--d"></span>
+            <b>VI<small>B</small></b>
+          </div>
+          <p class="loader-kicker">SCHWERER PANZER / TECHNICAL STUDY</p>
+          <h1>虎王</h1>
+          <p class="loader-sub">TIGER II <span>·</span> KÖNIGSTIGER</p>
+          <div class="loader-progress">
+            <div class="loader-track"><i id="progressBar"></i></div>
+            <div class="loader-meta">
+              <span id="loadingText">初始化渲染环境</span>
+              <span id="loadingPct">00</span>
+            </div>
+          </div>
+        </div>
+        <div class="loader-footer">
+          <span>PANZERKAMPFWAGEN VI AUSF. B</span>
+          <span>PROCEDURAL WEBGL MODEL · 2026</span>
+        </div>
+      </div>
+
+      <div class="modal" id="archiveModal" hidden>
+        <div class="modal-backdrop" data-close-modal></div>
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="archiveTitle">
+          <button class="modal-close" type="button" data-close-modal aria-label="关闭技术档案">×</button>
+          <p class="modal-kicker">TECHNICAL FILE / SD.KFZ. 182</p>
+          <h2 id="archiveTitle">虎王 <span>Tiger II</span></h2>
+          <p class="modal-lead">德国二战末期投入使用的重型坦克，正式编号 Panzerkampfwagen VI Ausf. B。亨舍尔车体搭配量产型炮塔，主炮为 8.8 cm KwK 43 L/71。</p>
+          <div class="modal-grid">
+            <div class="modal-section">
+              <h3>车辆数据</h3>
+              <dl class="tech-table">
+                <div><dt>战斗全重</dt><dd>69.8 t</dd></div>
+                <div><dt>车体长 / 含炮长</dt><dd>7.38 m / 10.29 m</dd></div>
+                <div><dt>车宽 / 车高</dt><dd>3.76 m / 3.09 m</dd></div>
+                <div><dt>乘员</dt><dd>5 人</dd></div>
+                <div><dt>发动机</dt><dd>Maybach HL 230 P30</dd></div>
+                <div><dt>功率 / 极速</dt><dd>700 PS / 41.5 km/h</dd></div>
+              </dl>
+            </div>
+            <div class="modal-section">
+              <h3>火力与防护</h3>
+              <dl class="tech-table">
+                <div><dt>主炮</dt><dd>8.8 cm KwK 43 L/71</dd></div>
+                <div><dt>辅助武器</dt><dd>7.92 mm MG 34 ×2</dd></div>
+                <div><dt>车体首上</dt><dd>150 mm / 约 50°</dd></div>
+                <div><dt>炮塔正面</dt><dd>180 mm</dd></div>
+                <div><dt>侧装甲</dt><dd>80 mm</dd></div>
+                <div><dt>负重轮</dt><dd>交错式，18 轮/侧</dd></div>
+              </dl>
+            </div>
+          </div>
+          <div class="modal-note">
+            <span>MODEL NOTE</span>
+            <p>本页是实时程序化三维复原，用于观察车辆外形与结构关系；装甲角度与附件配置经过艺术化取舍。模型按裸钢展示，不含迷彩涂装、战术编号或国籍标志，并非测绘级工程图。</p>
+          </div>
+          <div class="modal-actions">
+            <button class="btn-primary" type="button" data-close-modal>返回三维模型</button>
+            <span>拖动旋转 · 滚轮缩放 · 数字键 1—5 切换机位</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="fatal" id="fatal" hidden>
+        <div class="fatal-card">
+          <p class="fatal-kicker">WEBGL / INITIALIZATION ERROR</p>
+          <h2>三维场景未能载入</h2>
+          <p id="fatalMessage">请使用支持 WebGL 2 的现代浏览器，并关闭可能拦截脚本的扩展后重试。</p>
+          <button type="button" id="retryBtn">重新载入</button>
+        </div>
+      </div>
+
+      <noscript>
+        <div class="noscript">本页需要启用 JavaScript 才能载入三维虎王坦克模型。</div>
+      </noscript>
+    </div>
+  </main>
+
+  <script>/*__BUNDLE__*/</script>
+</body>
+</html>

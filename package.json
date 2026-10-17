@@ -1,0 +1,16 @@
+{
+  "name": "tiger-king-3d",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Procedural Three.js Tiger II (Sd.Kfz. 182) bare-steel 3D web model",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs --dev"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}
