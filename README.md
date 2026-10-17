@@ -3,6 +3,9 @@
 > **这是德国二战重型坦克“虎王”**（Panzerkampfwagen VI Ausf. B / Tiger II / Königstiger），不是动物虎。
 > 页面以程序化 Three.js 几何体复原亨舍尔车体与量产型炮塔，可自由环绕、缩放查看。
 
+- 在线浏览：[bai795.github.io/tiger-king-3d](https://bai795.github.io/tiger-king-3d/)
+- GitHub 仓库：[bai795/tiger-king-3d](https://github.com/bai795/tiger-king-3d)
+
 ## 打开方式
 
 双击 **`index.html`** 即可。整个页面（模型、贴图、灯光、界面和 Three.js）都内嵌在这一个文件里，**不需要联网，也不需要本地服务器**。
